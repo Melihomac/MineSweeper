@@ -11,10 +11,10 @@ public class Game extends JFrame {
     private JPanel panel2;
     private JLabel timeLabel;
 
-    private int noOfMines = 0;
+    private int numberOfMines = 0;
     private int[][] mineLand;
     private boolean[][] revealed;
-    private int noOfRevealed;
+    private int numberOfRevealed;
 
     private Image mine;
     private Image newMine;
@@ -22,7 +22,7 @@ public class Game extends JFrame {
     public static final int MAGIC_SIZE = 30;
 
     public Game(int size) {
-        noOfMines = size;
+        numberOfMines = size;
         this.setSize(size*MAGIC_SIZE, size*MAGIC_SIZE + 50);
         this.setTitle("Minesweeper");
         setLocationRelativeTo(null);
@@ -42,7 +42,7 @@ public class Game extends JFrame {
         int count = 0;
         int xPoint;
         int yPoint;
-        while(count<noOfMines) {
+        while(count<numberOfMines) {
             xPoint = rand.nextInt(size);
             yPoint = rand.nextInt(size);
             if (mineLand[xPoint][yPoint]!=-1) {
@@ -135,7 +135,7 @@ public class Game extends JFrame {
     }
 
     private boolean gameWon() {
-        return (this.noOfRevealed) == (Math.pow(this.mineLand.length, 2) - this.noOfMines);
+        return (this.numberOfRevealed) == (Math.pow(this.mineLand.length, 2) - this.numberOfMines);
     }
 
     public void buttonClicked(int x, int y) {
@@ -158,7 +158,7 @@ public class Game extends JFrame {
 
                 case 0:
                     buttons[x][y].setBackground(Color.lightGray);
-                    ++this.noOfRevealed;
+                    ++this.numberOfRevealed;
 
                     if (gameWon()) {
                         JOptionPane.showMessageDialog(rootPane, "Congratulations! You've Won");
@@ -182,7 +182,7 @@ public class Game extends JFrame {
                 default:
                     buttons[x][y].setText(Integer.toString(mineLand[x][y]));
                     buttons[x][y].setBackground(Color.LIGHT_GRAY);
-                    ++this.noOfRevealed;
+                    ++this.numberOfRevealed;
                     if (gameWon()) {
                         JOptionPane.showMessageDialog(rootPane, "You Won !");
                         System.exit(0);
