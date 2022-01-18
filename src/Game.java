@@ -73,7 +73,6 @@ public class Game extends JFrame {
     }
     public void main(Game frame, int size) {
         GameEngine gameEngine = new GameEngine(frame);
-        MyMouseListener myMouseListener = new MyMouseListener(frame);
         JPanel mainPanel = new JPanel();
         panel1 = new JPanel();
         panel2 = new JPanel();
@@ -112,7 +111,6 @@ public class Game extends JFrame {
                 //buttons[i][j].setBorderPainted(true);
                 buttons[i][j].setName(i + " " + j);
                 buttons[i][j].addActionListener(gameEngine);
-                buttons[i][j].addMouseListener(myMouseListener);
                 panel2.add(buttons[i][j]);
             }
         }
