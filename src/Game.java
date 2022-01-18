@@ -1,8 +1,8 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.Random;
-import javax.imageio.ImageIO;
 
 public class Game extends JFrame {
 
@@ -23,8 +23,8 @@ public class Game extends JFrame {
 
     public Game(int size) {
         numberOfMines = size;
-        this.setSize(size*MAGIC_SIZE, size*MAGIC_SIZE + 50);
-        this.setTitle("Minesweeper");
+        this.setSize(size * MAGIC_SIZE, size * MAGIC_SIZE + 50);
+        this.setTitle("MineSweeper");
         setLocationRelativeTo(null);
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         this.setVisible(true);
@@ -42,28 +42,26 @@ public class Game extends JFrame {
         int count = 0;
         int xPoint;
         int yPoint;
-        while(count<numberOfMines) {
+        while (count < numberOfMines) {
             xPoint = rand.nextInt(size);
             yPoint = rand.nextInt(size);
-            if (mineLand[xPoint][yPoint]!=-1) {
-                mineLand[xPoint][yPoint]=-1;  // -1 represents bomb
+            if (mineLand[xPoint][yPoint] != -1) {
+                mineLand[xPoint][yPoint] = -1;  // -1 represents bomb
                 count++;
             }
         }
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                if (mineLand[i][j]==-1) {
-                    for (int k = -1; k <= 1 ; k++) {
+                if (mineLand[i][j] == -1) {
+                    for (int k = -1; k <= 1; k++) {
                         for (int l = -1; l <= 1; l++) {
 
                             try {
-                                if (mineLand[i+k][j+l]!=-1) {
-                                    mineLand[i+k][j+l] += 1;
+                                if (mineLand[i + k][j + l] != -1) {
+                                    mineLand[i + k][j + l] += 1;
                                 }
-                            }
-                            catch (Exception e) {
-
+                            } catch (Exception e) {
                             }
                         }
                     }
@@ -71,6 +69,7 @@ public class Game extends JFrame {
             }
         }
     }
+
     public void main(Game frame, int size) {
         GameEngine gameEngine = new GameEngine(frame);
         JPanel mainPanel = new JPanel();
@@ -82,8 +81,7 @@ public class Game extends JFrame {
         try {
             mine = ImageIO.read(getClass().getResource("images/mine.png"));
             newMine = mine.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
         }
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -104,8 +102,8 @@ public class Game extends JFrame {
 
         buttons = new JButton[size][size];
 
-        for (int i=0; i<size; i++) {
-            for (int j=0; j<size ; j++ ) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 buttons[i][j] = new JButton();
                 buttons[i][j].setBorder(new LineBorder(Color.gray));
                 //buttons[i][j].setBorderPainted(true);
@@ -137,7 +135,7 @@ public class Game extends JFrame {
     }
 
     public void buttonClicked(int x, int y) {
-        if(!revealed[x][y]) {
+        if (!revealed[x][y]) {
             revealed[x][y] = true;
 
             switch (mineLand[x][y]) {
@@ -168,9 +166,7 @@ public class Game extends JFrame {
                         for (int j = -1; j <= 1; j++) {
                             try {
                                 buttonClicked(x + i, y + j);
-                            }
-                            catch (Exception e3) {
-
+                            } catch (Exception e3) {
                             }
                         }
                     }
