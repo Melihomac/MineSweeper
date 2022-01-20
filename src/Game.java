@@ -2,6 +2,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Random;
 
@@ -58,11 +59,10 @@ public class Game extends JFrame {
                 if (mineLand[i][j] == -1) {
                     for (int k = -1; k <= 1; k++) {
                         for (int l = -1; l <= 1; l++) {
-                            try {
+                            if (i + k >= 0 && j + l >= 0 && i + k < size && j + l < size) {
                                 if (mineLand[i + k][j + l] != -1) {
                                     mineLand[i + k][j + l] += 1;
                                 }
-                            } catch (Exception e) {
                             }
                         }
                     }
@@ -75,15 +75,17 @@ public class Game extends JFrame {
         GameEngine gameEngine = new GameEngine(frame);
         JPanel mainPanel = new JPanel();
         JPanel panelTop = new JPanel();
-        JPanel panel2 = new JPanel();
+        JPanel panelMineLand = new JPanel();
 
         revealed = new boolean[size][size];
 
         try {
             mine = ImageIO.read(Objects.requireNonNull(getClass().getResource("images/mine.png")));
-            mine = mine.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
-        } catch (Exception e) {
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        mine = mine.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -99,7 +101,7 @@ public class Game extends JFrame {
         panelTop.add(timeLabel);
 
         GridLayout g2 = new GridLayout(size, size);
-        panel2.setLayout(g2);
+        panelMineLand.setLayout(g2);
 
         buttons = new JButton[size][size];
 
@@ -109,12 +111,12 @@ public class Game extends JFrame {
                 buttons[i][j].setBorder(new LineBorder(Color.gray));
                 buttons[i][j].setName(i + " " + j);
                 buttons[i][j].addActionListener(gameEngine);
-                panel2.add(buttons[i][j]);
+                panelMineLand.add(buttons[i][j]);
             }
         }
 
         mainPanel.add(panelTop);
-        mainPanel.add(panel2);
+        mainPanel.add(panelMineLand);
         frame.setContentPane(mainPanel);
         this.setVisible(true);
 
@@ -136,46 +138,34 @@ public class Game extends JFrame {
     }
 
     public void buttonClicked(int x, int y) {
+        if (x < 0 || y < 0 || x > revealed.length - 1 || y > revealed.length - 1)
+            return;
+
         if (!revealed[x][y]) {
             revealed[x][y] = true;
 
             switch (mineLand[x][y]) {
-                case -1:
-                    try {
-                        buttons[x][y].setIcon(new ImageIcon(mine));
-                    } catch (Exception e1) {
-                    }
-
+                case -1 -> {
+                    buttons[x][y].setIcon(new ImageIcon(mine));
                     buttons[x][y].setBackground(Color.RED);
-
                     JOptionPane.showMessageDialog(this, "Game Over !", null, JOptionPane.ERROR_MESSAGE);
-
                     System.exit(0);
-
-                    break;
-
-                case 0:
+                }
+                case 0 -> {
                     buttons[x][y].setBackground(Color.lightGray);
                     ++this.numberOfRevealed;
-
                     if (gameWon()) {
                         JOptionPane.showMessageDialog(rootPane, "Congratulations! You've Won");
 
                         System.exit(0);
                     }
-
                     for (int i = -1; i <= 1; i++) {
                         for (int j = -1; j <= 1; j++) {
-                            try {
-                                buttonClicked(x + i, y + j);
-                            } catch (Exception e3) {
-                            }
+                            buttonClicked(x + i, y + j);
                         }
                     }
-
-                    break;
-
-                default:
+                }
+                default -> {
                     buttons[x][y].setText(Integer.toString(mineLand[x][y]));
                     buttons[x][y].setBackground(Color.LIGHT_GRAY);
                     ++this.numberOfRevealed;
@@ -183,7 +173,7 @@ public class Game extends JFrame {
                         JOptionPane.showMessageDialog(rootPane, "You Won !");
                         System.exit(0);
                     }
-                    break;
+                }
             }
         }
     }
