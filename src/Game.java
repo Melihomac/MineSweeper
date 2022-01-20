@@ -2,22 +2,20 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.util.Objects;
 import java.util.Random;
 
 public class Game extends JFrame {
 
     private JButton[][] buttons;
-    private JPanel panel1;
-    private JPanel panel2;
     private JLabel timeLabel;
 
-    private int numberOfMines = 0;
+    private final int numberOfMines;
     private int[][] mineLand;
     private boolean[][] revealed;
     private int numberOfRevealed;
 
     private Image mine;
-    private Image newMine;
 
     public static final int MAGIC_SIZE = 30;
 
@@ -30,15 +28,19 @@ public class Game extends JFrame {
         this.setVisible(true);
     }
 
-    private void setMines(int size) {
-        Random rand = new Random();
-
+    private void clearMineLand(int size) {
         mineLand = new int[size][size];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 mineLand[i][j] = 0;
             }
         }
+    }
+
+    private void setMines(int size) {
+        clearMineLand(size);
+
+        Random rand = new Random();
         int count = 0;
         int xPoint;
         int yPoint;
@@ -56,7 +58,6 @@ public class Game extends JFrame {
                 if (mineLand[i][j] == -1) {
                     for (int k = -1; k <= 1; k++) {
                         for (int l = -1; l <= 1; l++) {
-
                             try {
                                 if (mineLand[i + k][j + l] != -1) {
                                     mineLand[i + k][j + l] += 1;
@@ -73,29 +74,29 @@ public class Game extends JFrame {
     public void main(Game frame, int size) {
         GameEngine gameEngine = new GameEngine(frame);
         JPanel mainPanel = new JPanel();
-        panel1 = new JPanel();
-        panel2 = new JPanel();
+        JPanel panelTop = new JPanel();
+        JPanel panel2 = new JPanel();
 
         revealed = new boolean[size][size];
 
         try {
-            mine = ImageIO.read(getClass().getResource("images/mine.png"));
-            newMine = mine.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
+            mine = ImageIO.read(Objects.requireNonNull(getClass().getResource("images/mine.png")));
+            mine = mine.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
         } catch (Exception e) {
         }
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        BoxLayout g1 = new BoxLayout(panel1, BoxLayout.X_AXIS);
-        panel1.setLayout(g1);
+        BoxLayout g1 = new BoxLayout(panelTop, BoxLayout.X_AXIS);
+        panelTop.setLayout(g1);
 
-        JLabel jLabel2 = new JLabel(" Time :");
+        JLabel timeLabelText = new JLabel(" Time :");
         timeLabel = new JLabel("0");
         timeLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
         timeLabel.setHorizontalAlignment(JLabel.RIGHT);
 
-        panel1.add(jLabel2);
-        panel1.add(timeLabel);
+        panelTop.add(timeLabelText);
+        panelTop.add(timeLabel);
 
         GridLayout g2 = new GridLayout(size, size);
         panel2.setLayout(g2);
@@ -106,13 +107,13 @@ public class Game extends JFrame {
             for (int j = 0; j < size; j++) {
                 buttons[i][j] = new JButton();
                 buttons[i][j].setBorder(new LineBorder(Color.gray));
-                //buttons[i][j].setBorderPainted(true);
                 buttons[i][j].setName(i + " " + j);
                 buttons[i][j].addActionListener(gameEngine);
                 panel2.add(buttons[i][j]);
             }
         }
-        mainPanel.add(panel1);
+
+        mainPanel.add(panelTop);
         mainPanel.add(panel2);
         frame.setContentPane(mainPanel);
         this.setVisible(true);
@@ -127,7 +128,7 @@ public class Game extends JFrame {
         String[] time = this.timeLabel.getText().split(" ");
         int time0 = Integer.parseInt(time[0]);
         ++time0;
-        this.timeLabel.setText(Integer.toString(time0) + " s");
+        this.timeLabel.setText(time0 + " s");
     }
 
     private boolean gameWon() {
@@ -141,9 +142,10 @@ public class Game extends JFrame {
             switch (mineLand[x][y]) {
                 case -1:
                     try {
-                        buttons[x][y].setIcon(new ImageIcon(newMine));
+                        buttons[x][y].setIcon(new ImageIcon(mine));
                     } catch (Exception e1) {
                     }
+
                     buttons[x][y].setBackground(Color.RED);
 
                     JOptionPane.showMessageDialog(this, "Game Over !", null, JOptionPane.ERROR_MESSAGE);
