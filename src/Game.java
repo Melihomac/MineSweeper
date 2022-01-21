@@ -7,158 +7,149 @@ import java.util.Objects;
 import java.util.Random;
 
 public class Game extends JFrame {
+    private final int GAME_SIZE;
+    private final int[][] _mineLand;
+    private final int MINE_AMOUNT;
+    private final boolean[][] _revealed;
+    private int _numberOfRevealed;
+    private int _gameTime = -1;
+    private static final int MAGIC_SIZE = 30;
 
-    private JButton[][] buttons;
-    private JLabel timeLabel;
+    private Image _imgMine;
+    private JButton[][] _buttons;
+    private JLabel _labelTime;
 
-    private final int numberOfMines;
-    private int[][] mineLand;
-    private boolean[][] revealed;
-    private int numberOfRevealed;
-
-    private Image mine;
-
-    public static final int MAGIC_SIZE = 30;
-
-    public Game(int size) {
-        numberOfMines = size;
-        this.setSize(size * MAGIC_SIZE, size * MAGIC_SIZE + 50);
-        this.setTitle("MineSweeper");
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        this.setVisible(true);
+    public Game(int gameSize, int numberOfMines) {
+        GAME_SIZE = gameSize;
+        MINE_AMOUNT = numberOfMines;
+        _mineLand = new int[gameSize][gameSize];
+        _revealed = new boolean[gameSize][gameSize];
     }
 
-    private void clearMineLand(int size) {
-        mineLand = new int[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                mineLand[i][j] = 0;
+    private void clearMineLand() {
+        for (int i = 0; i < GAME_SIZE; i++) {
+            for (int j = 0; j < GAME_SIZE; j++) {
+                _mineLand[i][j] = 0;
             }
         }
     }
 
-    private void setMines(int size) {
-        clearMineLand(size);
+    private boolean isMine(int x) {
+        return (x == -1);
+    }
 
+    private boolean isValidIndex(int x, int y) {
+        return (x >= 0 && y >= 0 && x < GAME_SIZE && y < GAME_SIZE);
+    }
+
+    private void countMines(int x, int y) {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (isValidIndex(x + i, y + j)) {
+                    if (!isMine((_mineLand[x + i][y + j]))) {
+                        _mineLand[x + i][y + j] += 1;
+                    }
+                }
+            }
+        }
+    }
+
+    private void setMines() {
         Random rand = new Random();
         int count = 0;
         int xPoint;
         int yPoint;
-        while (count < numberOfMines) {
-            xPoint = rand.nextInt(size);
-            yPoint = rand.nextInt(size);
-            if (mineLand[xPoint][yPoint] != -1) {
-                mineLand[xPoint][yPoint] = -1;  // -1 represents bomb
-                count++;
-            }
-        }
 
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (mineLand[i][j] == -1) {
-                    for (int k = -1; k <= 1; k++) {
-                        for (int l = -1; l <= 1; l++) {
-                            if (i + k >= 0 && j + l >= 0 && i + k < size && j + l < size) {
-                                if (mineLand[i + k][j + l] != -1) {
-                                    mineLand[i + k][j + l] += 1;
-                                }
-                            }
-                        }
-                    }
-                }
+        while (count < MINE_AMOUNT) {
+            xPoint = rand.nextInt(GAME_SIZE);
+            yPoint = rand.nextInt(GAME_SIZE);
+            if (!isMine(_mineLand[xPoint][yPoint])) {
+                _mineLand[xPoint][yPoint] = -1;  // -1 represents bomb
+                count++;
+                countMines(xPoint, yPoint);
             }
         }
     }
 
-    public void main(Game frame, int size) {
-        GameEngine gameEngine = new GameEngine(frame);
-        JPanel mainPanel = new JPanel();
+    private void createForm() {
+        GameEngine gameEngine = new GameEngine(this);
+        JPanel panelMain = new JPanel();
         JPanel panelTop = new JPanel();
         JPanel panelMineLand = new JPanel();
 
-        revealed = new boolean[size][size];
+        this.setTitle("MineSweeper");
+        this.setLocationRelativeTo(null);
+        this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        this.setSize(GAME_SIZE * MAGIC_SIZE, GAME_SIZE * MAGIC_SIZE + 50);
 
         try {
-            mine = ImageIO.read(Objects.requireNonNull(getClass().getResource("images/mine.png")));
+            _imgMine = ImageIO.read(Objects.requireNonNull(getClass().getResource("images/mine.png")));
         } catch (IOException e) {
             e.printStackTrace();
         }
+        _imgMine = _imgMine.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
 
-        mine = mine.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
-
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        panelMain.setLayout(new BoxLayout(panelMain, BoxLayout.Y_AXIS));
 
         BoxLayout g1 = new BoxLayout(panelTop, BoxLayout.X_AXIS);
         panelTop.setLayout(g1);
 
-        JLabel timeLabelText = new JLabel(" Time :");
-        timeLabel = new JLabel("0");
-        timeLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        timeLabel.setHorizontalAlignment(JLabel.RIGHT);
+        _labelTime = new JLabel("0 s");
+        _labelTime.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        _labelTime.setHorizontalAlignment(JLabel.RIGHT);
 
-        panelTop.add(timeLabelText);
-        panelTop.add(timeLabel);
+        JLabel labelTimeText = new JLabel(" Time: ");
+        panelTop.add(labelTimeText);
+        panelTop.add(_labelTime);
 
-        GridLayout g2 = new GridLayout(size, size);
+        GridLayout g2 = new GridLayout(GAME_SIZE, GAME_SIZE);
         panelMineLand.setLayout(g2);
 
-        buttons = new JButton[size][size];
+        _buttons = new JButton[GAME_SIZE][GAME_SIZE];
 
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                buttons[i][j] = new JButton();
-                buttons[i][j].setBorder(new LineBorder(Color.gray));
-                buttons[i][j].setName(i + " " + j);
-                buttons[i][j].addActionListener(gameEngine);
-                panelMineLand.add(buttons[i][j]);
+        for (int i = 0; i < GAME_SIZE; i++) {
+            for (int j = 0; j < GAME_SIZE; j++) {
+                _buttons[i][j] = new JButton();
+                _buttons[i][j].setBorder(new LineBorder(Color.gray));
+                _buttons[i][j].setName(i + " " + j);
+                _buttons[i][j].addActionListener(gameEngine);
+                panelMineLand.add(_buttons[i][j]);
             }
         }
 
-        mainPanel.add(panelTop);
-        mainPanel.add(panelMineLand);
-        frame.setContentPane(mainPanel);
+        panelMain.add(panelTop);
+        panelMain.add(panelMineLand);
+        this.setContentPane(panelMain);
         this.setVisible(true);
-
-        setMines(size);
-
-        TimeThread timer = new TimeThread(this);
-        timer.start();
-    }
-
-    public void timer() {
-        String[] time = this.timeLabel.getText().split(" ");
-        int time0 = Integer.parseInt(time[0]);
-        ++time0;
-        this.timeLabel.setText(time0 + " s");
     }
 
     private boolean gameWon() {
-        return (this.numberOfRevealed) == (Math.pow(this.mineLand.length, 2) - this.numberOfMines);
+        return (_numberOfRevealed) == (Math.pow(GAME_SIZE, 2) - MINE_AMOUNT);
+    }
+
+    public void updateTime() {
+        _gameTime++;
+        _labelTime.setText(_gameTime + " s");
     }
 
     public void buttonClicked(int x, int y) {
-        if (x < 0 || y < 0 || x > revealed.length - 1 || y > revealed.length - 1)
+        if (!isValidIndex(x, y))
             return;
 
-        if (!revealed[x][y]) {
-            revealed[x][y] = true;
+        if (!_revealed[x][y]) {
+            _revealed[x][y] = true;
+            _numberOfRevealed++;
 
-            switch (mineLand[x][y]) {
+            switch (_mineLand[x][y]) {
                 case -1 -> {
-                    buttons[x][y].setIcon(new ImageIcon(mine));
-                    buttons[x][y].setBackground(Color.RED);
+                    _buttons[x][y].setBackground(Color.RED);
+                    _buttons[x][y].setIcon(new ImageIcon(_imgMine));
                     JOptionPane.showMessageDialog(this, "Game Over !", null, JOptionPane.ERROR_MESSAGE);
                     System.exit(0);
                 }
                 case 0 -> {
-                    buttons[x][y].setBackground(Color.lightGray);
-                    ++this.numberOfRevealed;
-                    if (gameWon()) {
-                        JOptionPane.showMessageDialog(rootPane, "Congratulations! You've Won");
+                    _buttons[x][y].setBackground(Color.LIGHT_GRAY);
 
-                        System.exit(0);
-                    }
                     for (int i = -1; i <= 1; i++) {
                         for (int j = -1; j <= 1; j++) {
                             buttonClicked(x + i, y + j);
@@ -166,15 +157,24 @@ public class Game extends JFrame {
                     }
                 }
                 default -> {
-                    buttons[x][y].setText(Integer.toString(mineLand[x][y]));
-                    buttons[x][y].setBackground(Color.LIGHT_GRAY);
-                    ++this.numberOfRevealed;
-                    if (gameWon()) {
-                        JOptionPane.showMessageDialog(rootPane, "You Won !");
-                        System.exit(0);
-                    }
+                    _buttons[x][y].setText(Integer.toString(_mineLand[x][y]));
+                    _buttons[x][y].setBackground(Color.LIGHT_GRAY);
                 }
             }
+
+            if (gameWon()) {
+                JOptionPane.showMessageDialog(rootPane, "You Won !");
+                System.exit(0);
+            }
         }
+    }
+
+    public void play() {
+        clearMineLand();
+        setMines();
+        createForm();
+
+        TimeThread timer = new TimeThread(this);
+        timer.start();
     }
 }
