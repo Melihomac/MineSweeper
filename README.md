@@ -1,3 +1,4 @@
 # MineSweeper Game with Java
-![Minesweeper](https://user-images.githubusercontent.com/37351493/149169741-c16a9096-4807-4676-a129-14719bdd4ba2.png)
-![Minesweeper](https://user-images.githubusercontent.com/37351493/149170704-85fe7df8-79e0-4da4-aa1e-90f739bbbd2c.png)
+
+<img src="https://user-images.githubusercontent.com/37351493/149169741-c16a9096-4807-4676-a129-14719bdd4ba2.png" height=200></img>
+<img src="https://user-images.githubusercontent.com/37351493/150596352-d6c70204-2280-4b29-ae65-8cea426ef61f.png" height=200></img>
