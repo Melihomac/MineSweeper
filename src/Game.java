@@ -132,6 +132,16 @@ public class Game extends JFrame {
         _labelTime.setText(_gameTime + " s");
     }
 
+    private void revealMines() {
+        for (int i = 0; i < GAME_SIZE; i++) {
+            for (int j = 0; j < GAME_SIZE; j++) {
+                if (isMine(_mineLand[i][j])) {
+                    _buttons[i][j].setIcon(new ImageIcon(_imgMine));
+                }
+            }
+        }
+    }
+
     public void buttonClicked(int x, int y) {
         if (!isValidIndex(x, y))
             return;
@@ -143,7 +153,7 @@ public class Game extends JFrame {
             switch (_mineLand[x][y]) {
                 case -1 -> {
                     _buttons[x][y].setBackground(Color.RED);
-                    _buttons[x][y].setIcon(new ImageIcon(_imgMine));
+                    revealMines();
                     JOptionPane.showMessageDialog(this, "Game Over !", null, JOptionPane.ERROR_MESSAGE);
                     System.exit(0);
                 }
@@ -163,6 +173,7 @@ public class Game extends JFrame {
             }
 
             if (gameWon()) {
+                revealMines();
                 JOptionPane.showMessageDialog(rootPane, "You Won !");
                 System.exit(0);
             }
