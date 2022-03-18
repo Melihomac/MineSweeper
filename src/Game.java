@@ -12,12 +12,15 @@ public class Game extends JFrame {
     private final int MINE_AMOUNT;
     private final boolean[][] _revealed;
     private int _numberOfRevealed;
-    private int _gameTime = -1;
+    private int _gameTime = 0;
     private static final int MAGIC_SIZE = 30;
+    private final Color[] _colors = {Color.BLACK, Color.BLUE, new Color(0, 153, 0), Color.RED, Color.ORANGE, Color.YELLOW, Color.CYAN, Color.PINK, Color.MAGENTA};
 
     private Image _imgMine;
     private JButton[][] _buttons;
     private JLabel _labelTime;
+
+    private TimeThread timer;
 
     public Game(int gameSize, int numberOfMines) {
         GAME_SIZE = gameSize;
@@ -154,6 +157,7 @@ public class Game extends JFrame {
                 case -1 -> {
                     _buttons[x][y].setBackground(Color.RED);
                     revealMines();
+                    timer.stop();
                     JOptionPane.showMessageDialog(this, "Game Over !", null, JOptionPane.ERROR_MESSAGE);
                     System.exit(0);
                 }
@@ -168,12 +172,15 @@ public class Game extends JFrame {
                 }
                 default -> {
                     _buttons[x][y].setText(Integer.toString(_mineLand[x][y]));
+                    _buttons[x][y].setForeground(_colors[_mineLand[x][y]]);
+                    _buttons[x][y].setFont(new Font("SansSerif", Font.BOLD, 14));
                     _buttons[x][y].setBackground(Color.LIGHT_GRAY);
                 }
             }
 
             if (gameWon()) {
                 revealMines();
+                timer.stop();
                 JOptionPane.showMessageDialog(rootPane, "You Won !");
                 System.exit(0);
             }
@@ -185,7 +192,7 @@ public class Game extends JFrame {
         setMines();
         createForm();
 
-        TimeThread timer = new TimeThread(this);
+        timer = new TimeThread(this);
         timer.start();
     }
 }
