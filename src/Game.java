@@ -14,6 +14,7 @@ public class Game extends JFrame {
     private int _numberOfRevealed;
     private int _gameTime = 0;
     private static final int MAGIC_SIZE = 30;
+    private final Color[] _colors = {Color.BLACK, Color.BLUE, new Color(0, 153, 0), Color.RED, Color.ORANGE, Color.YELLOW, Color.CYAN, Color.PINK, Color.MAGENTA};
 
     private Image _imgMine;
     private JButton[][] _buttons;
@@ -171,6 +172,8 @@ public class Game extends JFrame {
                 }
                 default -> {
                     _buttons[x][y].setText(Integer.toString(_mineLand[x][y]));
+                    _buttons[x][y].setForeground(_colors[_mineLand[x][y]]);
+                    _buttons[x][y].setFont(new Font("SansSerif", Font.BOLD, 14));
                     _buttons[x][y].setBackground(Color.LIGHT_GRAY);
                 }
             }
