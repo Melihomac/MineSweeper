@@ -1,9 +1,10 @@
 public class TimeThread implements Runnable {
-    private Thread t;
+    private final Thread t;
     private final Game newGame;
 
     TimeThread(Game newGame) {
         this.newGame = newGame;
+        this.t = new Thread(this);
     }
 
     public void run() {
@@ -18,9 +19,10 @@ public class TimeThread implements Runnable {
     }
 
     public void start() {
-        if (t == null) {
-            t = new Thread(this);
-            t.start();
-        }
+        t.start();
+    }
+
+    public void stop() {
+        t.stop();
     }
 }
